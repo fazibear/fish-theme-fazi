@@ -24,15 +24,32 @@ set __fish_git_prompt_color_cleanstate 777
 set __fish_git_prompt_char_cleanstate ''
 
 function __prompt_current_dir
-  echo (set_color -o yellow)(pwd | sed "s:^$HOME:~:")(set_color normal)
+  set -l real_home ~
+  set -l long_dir (string replace -r '^'"$real_home" '~' $PWD)
+  set -l long_dir_length (string length $long_dir)
+  set -l max_length (math $COLUMNS / 2)
+
+  echo -n (set_color -o yellow)
+
+  if test $long_dir_length -gt $max_length
+    echo -n (prompt_pwd)
+  else
+    echo -n $long_dir
+  end
+
+  echo -n (set_color normal)
 end
 
 function __prompt_prompt
+  echo -n (set_color -o blue)
+
   if set -q SSH_CLIENT; or set -q SSH_TTY
-    echo ⚡️
+    echo -n ⚡️
   else
-    echo (set_color -o blue)➜(set_color -o normal)
+    echo -n ➜
   end
+
+  echo -n (set_color -o normal)
 end
 
 function fish_prompt
